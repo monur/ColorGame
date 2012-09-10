@@ -14,15 +14,16 @@ function canvasSupport () {
      return true;
 }
 
-var screenWidth = 10;
-var screenHeight = 20;
+var screenWidth = 20; //number of blocks in a row
+var screenHeight = 20; //number of block in a column
 var map = new map();
+var screenSize = screenWidth * screenHeight;
 
 function canvasApp(){
 if (!canvasSupport()) {
           return;
      }else{
-    	restart();
+        restart();
    }
 }
 
@@ -52,12 +53,12 @@ function box(color, x ,y){
 }
 
 function map(){
-	this.boxWidth = 20;
-	this.boxHeight = 20;
 	this.step = 0;
 	this.mapArray = new Array(screenWidth);
+    this.isGameOn = true;
 	this.initialize = function(){
 		this.step = 0;
+        this.isGameOn = true;
 		for(var i = 0; i < screenWidth; i++){
 			this.mapArray[i] = new Array(screenHeight);
 			for(var j = 0; j < screenHeight; j++){
@@ -83,25 +84,38 @@ function map(){
 	}
 	
 	this.changeActiveColor = function(color){
-		for(var i = 0; i < screenWidth; i++){
-			for(var j = 0; j < screenHeight; j++){
-				var box = this.mapArray[i][j];
-				if(box.active){
-					this.checkNeighbours(color, i, j);
-				}	
-			}
-		}
-		for(var i = 0; i < screenWidth; i++){
-			for(var j = 0; j < screenHeight; j++){
-				var box = this.mapArray[i][j];
-				if(box.active){
-					box.color = color;
-				}	
-			}
-		}
-		this.step++;
-		this.draw();
+        if(this.isGameOn){
+            var activeBoxCount = 0;
+    		for(var i = 0; i < screenWidth; i++){
+    			for(var j = 0; j < screenHeight; j++){
+    				var box = this.mapArray[i][j];
+    				if(box.active){
+    					this.checkNeighbours(color, i, j);
+    				}	
+    			}
+    		}
+    		for(var i = 0; i < screenWidth; i++){
+    			for(var j = 0; j < screenHeight; j++){
+    				var box = this.mapArray[i][j];
+    				if(box.active){
+    					box.color = color;
+                        activeBoxCount++;
+    				}	
+    			}
+    		}
+    		this.step++;
+    		this.draw();
+            if(activeBoxCount == screenSize){
+                this.endGame();
+            }
+        }
 	}
+    
+    this.endGame = function(){
+        var statusDiv = document.getElementById("gameStatus");
+        statusDiv.innerHTML = 'Game Over';
+        this.isGameOn = false;
+    }
 	
 	this.checkNeighbours = function(color, x, y){
 		if(x > 0){
@@ -132,6 +146,8 @@ function clickColor(colorCode){
 }
 
 function restart(){
+    var statusDiv = document.getElementById("gameStatus");
+    statusDiv.innerHTML = '';
 	map.initialize();
 	map.draw();
 }
@@ -140,6 +156,8 @@ function restart(){
 <body>
 <div>
 <input type="button" value="New Game" onclick="javascript:restart()" />
+</div>
+<div id="gameStatus" style="color:#ff2222; font-size:16px; font-family:comic-sans;">
 </div>
 <div id="step">
 Step = 0
