@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Piksel</title>
+<script type="text/javascript">
+
+window.addEventListener('load', eventWindowLoaded, false);
+function eventWindowLoaded() {
+   canvasApp();
+}
+
+function canvasSupport () {
+     return true;
+}
+
+var screenWidth = 10;
+var screenHeight = 20;
+var map = new map();
+
+function canvasApp(){
+if (!canvasSupport()) {
+          return;
+     }else{
+    	restart();
+   }
+}
+
+function box(color, x ,y){
+	this.color = color;
+	this.width = 20;
+	this.height = 20;
+	this.x = x;
+	this.y = y;
+	this.active = false;
+	
+	this.draw = function(context){
+		if(this.color == 1)
+			context.fillStyle = '#ff0000';
+		else if(this.color == 2)
+			context.fillStyle = '#00ff00';
+		else if(this.color == 3)
+			context.fillStyle = '#0000ff';
+		else if(this.color == 4)
+			context.fillStyle = '#ff00ff';
+		else if(this.color == 5)
+			context.fillStyle = '#ffff00';
+		else if(this.color == 6)
+			context.fillStyle = '#00ffff';
+		context.fillRect(x*this.width, y*this.height, this.width, this.height);
+	}
+}
+
+function map(){
+	this.boxWidth = 20;
+	this.boxHeight = 20;
+	this.step = 0;
+	this.mapArray = new Array(screenWidth);
+	this.initialize = function(){
+		this.step = 0;
+		for(var i = 0; i < screenWidth; i++){
+			this.mapArray[i] = new Array(screenHeight);
+			for(var j = 0; j < screenHeight; j++){
+				this.mapArray[i][j] = new box(Math.floor(Math.random()*6)+1, i, j);
+			}
+		}
+		this.mapArray[0][0].active = true;
+	}
+	
+	this.draw = function(){
+		console.log('drawing...');
+		var theCanvas = document.getElementById("canvas");
+		var context = theCanvas.getContext("2d");
+		context.clearRect(0, 0, 500, 600);
+		for(var i = 0; i < screenWidth; i++){
+			for(var j = 0; j < screenHeight; j++){
+				var box = this.mapArray[i][j];
+				box.draw(context);
+			}
+		}
+		var stepDiv = document.getElementById("step");
+		stepDiv.innerHTML = 'Step = ' + this.step;
+	}
+	
+	this.changeActiveColor = function(color){
+		for(var i = 0; i < screenWidth; i++){
+			for(var j = 0; j < screenHeight; j++){
+				var box = this.mapArray[i][j];
+				if(box.active){
+					this.checkNeighbours(color, i, j);
+				}	
+			}
+		}
+		for(var i = 0; i < screenWidth; i++){
+			for(var j = 0; j < screenHeight; j++){
+				var box = this.mapArray[i][j];
+				if(box.active){
+					box.color = color;
+				}	
+			}
+		}
+		this.step++;
+		this.draw();
+	}
+	
+	this.checkNeighbours = function(color, x, y){
+		if(x > 0){
+			if(this.mapArray[x-1][y].color == color){
+				this.mapArray[x-1][y].active = true;
+			}
+		}
+		if(x < screenWidth-1){
+			if(this.mapArray[x+1][y].color == color){
+				this.mapArray[x+1][y].active = true;
+			}
+		}
+		if(y > 0){
+			if(this.mapArray[x][y-1].color == color){
+				this.mapArray[x][y-1].active = true;
+			}
+		}
+		if(y < screenHeight-1){
+			if(this.mapArray[x][y+1].color == color){
+				this.mapArray[x][y+1].active = true;
+			}
+		}
+	}
+}
+
+function clickColor(colorCode){
+	map.changeActiveColor(colorCode);
+}
+
+function restart(){
+	map.initialize();
+	map.draw();
+}
+</script>
+</head>
+<body>
+<div>
+<input type="button" value="New Game" onclick="javascript:restart()" />
+</div>
+<div id="step">
+Step = 0
+</div>
+<div style="top: 50px; left: 50px;">
+<canvas id="canvas" width="500" height="400">
+ Your browser does not support HTML5 Canvas.
+</canvas>
+</div>
+<div>
+<input type="button" onclick="javascript:clickColor(1)" style="background-color:#ff0000; width:60px; height:60px" />
+<input type="button" onclick="javascript:clickColor(2)" style="background-color:#00ff00; width:60px; height:60px" />
+<input type="button" onclick="javascript:clickColor(3)" style="background-color:#0000ff; width:60px; height:60px" />
+<input type="button" onclick="javascript:clickColor(4)" style="background-color:#ff00ff; width:60px; height:60px" />
+<input type="button" onclick="javascript:clickColor(5)" style="background-color:#ffff00; width:60px; height:60px" />
+<input type="button" onclick="javascript:clickColor(6)" style="background-color:#00ffff; width:60px; height:60px" />
+</div>
+</body>
+</html>
