@@ -49,6 +49,10 @@ function box(color, x ,y){
 		else if(this.color == 6)
 			context.fillStyle = '#00ffff';
 		context.fillRect(x*this.width, y*this.height, this.width, this.height);
+        if(this.active){
+    		context.fillStyle = '#000000';
+    	    context.fillRect(x*this.width+8, y*this.height+8, 2, 2);
+        }
 	}
 }
 
@@ -66,6 +70,7 @@ function map(){
 			}
 		}
 		this.mapArray[0][0].active = true;
+        this.checkNeighbours(this.mapArray[0][0].color, 0, 0);
 	}
 	
 	this.draw = function(){
@@ -86,12 +91,12 @@ function map(){
 	this.changeActiveColor = function(color){
         if(this.isGameOn){
             var activeBoxCount = 0;
-    		for(var i = 0; i < screenWidth; i++){
+            for(var i = 0; i < screenWidth; i++){
     			for(var j = 0; j < screenHeight; j++){
     				var box = this.mapArray[i][j];
     				if(box.active){
     					this.checkNeighbours(color, i, j);
-    				}	
+    				}
     			}
     		}
     		for(var i = 0; i < screenWidth; i++){
@@ -120,22 +125,34 @@ function map(){
 	this.checkNeighbours = function(color, x, y){
 		if(x > 0){
 			if(this.mapArray[x-1][y].color == color){
-				this.mapArray[x-1][y].active = true;
+                if(!this.mapArray[x-1][y].active){
+				    this.mapArray[x-1][y].active = true;
+                    this.checkNeighbours(color, x-1, y);
+                }
 			}
 		}
 		if(x < screenWidth-1){
 			if(this.mapArray[x+1][y].color == color){
-				this.mapArray[x+1][y].active = true;
+                if(!this.mapArray[x+1][y].active){
+    			    this.mapArray[x+1][y].active = true;
+                    this.checkNeighbours(color, x+1, y);
+                }
 			}
 		}
 		if(y > 0){
 			if(this.mapArray[x][y-1].color == color){
-				this.mapArray[x][y-1].active = true;
+                if(!this.mapArray[x][y-1].active){
+    			    this.mapArray[x][y-1].active = true;
+                    this.checkNeighbours(color, x, y-1);
+                }
 			}
 		}
 		if(y < screenHeight-1){
 			if(this.mapArray[x][y+1].color == color){
-				this.mapArray[x][y+1].active = true;
+                if(!this.mapArray[x][y+1].active){
+    			    this.mapArray[x][y+1].active = true;
+                    this.checkNeighbours(color, x, y+1);
+                }
 			}
 		}
 	}
